@@ -96,7 +96,7 @@ header{background:#0f0d0bf2}.brand{white-space:nowrap;font-size:1rem;letter-spac
 .kind{border:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:.6rem}legend{color:var(--t);font-size:.85rem;margin-bottom:.5rem}
 .opt{display:block;position:relative;color:var(--i)}.opt input{position:absolute;opacity:0;width:1px}.opt span{display:block;padding:1.1rem .5rem;border:1px solid var(--b);text-align:center;cursor:pointer;font-family:Georgia,serif;font-size:1.05rem}
 .opt input:checked+span{border-color:var(--o);background:#1b1814;color:var(--o)}.opt input:focus-visible+span{outline:2px solid var(--o);outline-offset:3px}input[type=file]{padding:.7rem}
-.alt{background:#191512;border-top:1px solid #ffffff14}#artiste p{margin-top:1rem}.tl{list-style:none;margin-top:2rem;display:grid;gap:1.1rem;border-left:1px solid var(--o);padding-left:1.2rem}.tl li{display:grid;gap:.1rem;color:var(--t)}.tl b{font-family:Georgia,serif;font-weight:400;color:var(--i);font-size:1.15rem}
+.alt{background:#191512;border-top:1px solid #ffffff14}.more{display:inline-block;margin-top:1.2rem;font-size:.85rem;letter-spacing:.04em;color:var(--o);text-decoration:none;border-bottom:1px solid currentColor}.more:hover{opacity:.8}#artiste p{margin-top:1rem}.tl{list-style:none;margin-top:2rem;display:grid;gap:1.1rem;border-left:1px solid var(--o);padding-left:1.2rem}.tl li{display:grid;gap:.1rem;color:var(--t)}.tl b{font-family:Georgia,serif;font-weight:400;color:var(--i);font-size:1.15rem}
 .ph{display:flex;flex-direction:column;height:auto;background:#000;overflow:hidden}.car{display:flex;flex-direction:column;flex:1;min-height:0}.trk{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;height:56svh;background:#000}.trk::-webkit-scrollbar{display:none}.sl{flex:0 0 100%;scroll-snap-align:center;position:relative}.ph .sl img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .ctl{display:flex;align-items:center;gap:.4rem;padding:.5rem .8rem;background:var(--k);border-top:1px solid #ffffff1a}.ctl button{background:none;border:1px solid var(--b);color:var(--i);width:2.7rem;height:2.7rem;font-size:1.1rem;cursor:pointer}.ctl span{flex:1;min-width:0;font-size:.9rem;color:var(--t);padding-left:.6rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(min-width:900px){.ph{height:calc(100svh - 3.6rem)}.trk{height:auto;flex:1}}
@@ -143,6 +143,14 @@ tl=[("1997","Tunis: the start of a practice of nearly thirty years"),("2008","Pi
 bio=["Dal 1997, Kosta Imed LITHOS dedica la vita a un solo gesto: dare alla pietra la voce di un'immagine. Quasi trent'anni di pratica gli hanno insegnato ciò che nessuna scuola trasmette da sola: leggere la venatura di un marmo, sentire l'istante in cui una tessera trova il suo posto, far nascere da migliaia di frammenti una composizione che sembra esistere da sempre.","Il suo percorso segue il Mediterraneo. Lavora prima a Tunisi, erede della grande tradizione musiva di Cartagine, poi dal 2008 al Pireo, presso Atene, a contatto con un altro patrimonio antico. Oggi il suo atelier si trova a Camporosso Mare, vicino a Imperia, in Liguria.","Le sue opere — quadri, affreschi, pavimenti, decori per vasche e dimore — portano la stessa firma: una mano sicura, una tavolozza di pietre scelte una a una e il rifiuto della facilità. Ogni commissione è trattata come un'opera unica, dal primo schizzo all'ultima tessera."],
 tl=[("1997","Tunisi: inizio di una pratica di quasi trent'anni"),("2008","Il Pireo, Atene"),("Oggi","Camporosso Mare, Imperia (Liguria): atelier LITHOS IMPERIAL")])}
 for lg,v in NEW2.items():X[lg].update(v)
+
+AUTH={'fr':dict(rlink="En savoir plus sur l'authenticité des œuvres",auh="L'authenticité et le patrimoine de l'œuvre",
+aup=["Chaque mosaïque sortie de l'atelier est une création originale : une pièce unique, jamais reproduite à l'identique par l'atelier.","Elle est accompagnée d'un titre d'authenticité signé par l'artisan, précisant la nature de l'œuvre, ses matériaux et ses dimensions, et porte un numéro d'inventaire reporté au registre de l'atelier.","Ce document permet d'attester l'origine de l'œuvre pour son assurance, sa transmission ou une revente future."]),
+'en':dict(rlink="More about the authenticity of the works",auh="Authenticity and the work's provenance",
+aup=["Every mosaic leaving the atelier is an original creation: a unique piece, never reproduced identically by the atelier.","It comes with a title of authenticity signed by the craftsman, stating the nature of the work, its materials and dimensions, and carrying an inventory number recorded in the atelier's register.","This document attests to the work's origin for insurance, transmission or any future resale."]),
+'it':dict(rlink="Maggiori informazioni sull'autenticità delle opere",auh="L'autenticità e la provenienza dell'opera",
+aup=["Ogni mosaico uscito dall'atelier è una creazione originale: un pezzo unico, mai riprodotto in modo identico dall'atelier.","È accompagnato da un titolo di autenticità firmato dall'artigiano, che indica la natura dell'opera, i materiali e le dimensioni, con un numero d'inventario riportato nel registro dell'atelier.","Questo documento attesta l'origine dell'opera ai fini assicurativi, di trasmissione o di una futura rivendita."])}
+for lg,v in AUTH.items():X[lg].update(v)
 ORD=['arbre','khamsa','sol','pilier','bordure']
 import json
 for lg,c in T.items():
@@ -165,7 +173,8 @@ for lg,c in T.items():
 <section class="light"><div class="wrap"><h2>{c['ih']}</h2><p>{c['ip']}</p></div></section>
 <section id="oeuvres"><h2>{c['wh']}</h2><p class="small">{c['wz']}</p><div class="grid">{figs}</div><ul class="cats">{''.join(f'<li>{x}</li>' for x in c['cats'])}</ul></section>
 <section id="sur-mesure" class="light"><div class="wrap"><h2>{c['ch']}</h2><p>{c['cp']}</p><ol>{''.join(f'<li>{s}</li>' for s in c['steps'])}</ol><a class="btn" href="#projet">{c['c1']}</a></div></section>
-<section id="reproductions"><div class="wrap"><h2>{c['rh']}</h2><p class="dim">{c['rp']}</p></div></section>
+<section id="reproductions"><div class="wrap"><h2>{c['rh']}</h2><p class="dim">{c['rp']}</p><a class="more" href="#authenticite">{c['rlink']}</a></div></section>
+<section id="authenticite" class="alt"><div class="wrap"><h2>{c['auh']}</h2>{''.join(f'<p>{x}</p>' for x in c['aup'])}</div></section>
 {art}
 <section id="atelier" class="light"><div class="wrap"><h2>{c['gh']}</h2><p>{c['gp']}</p></div><div class="geste">{gs}</div><div class="wrap" style="margin-top:3rem"><h2>{c['ah']}</h2><p>{c['ap']}</p></div></section>
 <section id="projet"><div class="wrap"><h2>{c['ph']}</h2><p class="dim">{c['pp']}</p>
