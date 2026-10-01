@@ -63,17 +63,23 @@ T={
  ph="Presenta il tuo progetto",pp="Un'idea, un'immagine, uno spazio? Descrivilo: ogni richiesta è valutata singolarmente dall'atelier.",fl=["Il tuo nome","Tipo di opera","Dimensioni approssimative","Descrivi l'idea o lo spazio"],
  opts=["Quadro","Opera murale / affresco","Pavimento / medaglione","Piscina / fontana","Altro"],send="Presenta il progetto all'atelier",note="Il messaggio si apre in WhatsApp, dove puoi allegare foto e planimetrie. Questo sito non salva alcun dato.",wa="Buongiorno, vorrei presentare un progetto a LITHOS IMPERIAL.",
  lh="Note legali e privacy",lp=["Editore: Kosta Imed LITHOS, atelier LITHOS IMPERIAL, Camporosso Mare (IM), Italia. Tel. +39 351 386 6250. P.IVA: [da completare]. Hosting: GitHub Pages (GitHub, Inc., USA).","Privacy (GDPR, Reg. UE 2016/679): il sito non usa cookie né strumenti di tracciamento. Il messaggio e i file inviati con il modulo servono solo a rispondere alla richiesta; transitano da fornitori tecnici (archiviazione file, messaggistica) e sono conservati solo per il tempo necessario. L'host può registrare l'indirizzo IP per sicurezza. Puoi esercitare i diritti di accesso, rettifica e cancellazione presso l'atelier o rivolgerti al Garante per la protezione dei dati personali.","Opere e fotografie sono di proprietà dell'atelier; ne è vietata la riproduzione senza autorizzazione."],pv="Contatto")}
-CSS="""*{box-sizing:border-box;margin:0}html{scroll-behavior:smooth;scroll-padding-top:4rem}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+CSS="""*{box-sizing:border-box;margin:0}html{scroll-behavior:smooth;scroll-padding-top:calc(4rem + env(safe-area-inset-top,0px))}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 :root{--k:#0f0d0b;--i:#f2ede2;--t:#d8ceb8;--g:#8b857a;--b:#4b4034;--o:#c4a86a}
-body{background:var(--k);color:var(--i);font:17px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{background:var(--k);color:var(--i);padding-top:env(safe-area-inset-top,0px);font:17px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 h1,h2,h3,.brand{font-family:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;font-weight:400;line-height:1.15}
 a{color:inherit}:focus-visible{outline:2px solid var(--o);outline-offset:3px}
-header{position:fixed;inset:0 0 auto;z-index:5;display:flex;gap:1rem;align-items:center;justify-content:space-between;padding:.8rem 5vw;background:linear-gradient(#0f0d0bd9,#0f0d0b00)}
+header{position:fixed;inset:env(safe-area-inset-top,0px) 0 auto;z-index:5;display:flex;gap:1rem;align-items:center;justify-content:space-between;padding:.8rem 5vw;background:linear-gradient(#0f0d0bd9,#0f0d0b00)}
 .brand{text-decoration:none;font-size:1.15rem;letter-spacing:.14em;display:flex;align-items:center;gap:.6rem}.brand img{width:34px;height:34px}
 nav{display:flex;gap:1.4rem;font-size:.9rem}nav a{text-decoration:none;opacity:.85}nav a:hover{opacity:1}.lang{font-size:.85rem;display:flex;gap:.6rem}.lang a{text-decoration:none;opacity:.6}.lang a[aria-current]{opacity:1;color:var(--o)}
-@media(max-width:860px){nav{display:none}}
-.hero{position:relative;min-height:100svh;display:grid;align-content:end;padding:0 5vw 12vh}.hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1}
-.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(#0f0d0b66,#0f0d0bf2 88%);z-index:-1}
+#mt{display:none}
+@media(max-width:860px){
+nav{position:fixed;inset:3.6rem 0 auto;z-index:4;flex-direction:column;gap:0;background:#0f0d0bf5;border-bottom:1px solid #ffffff1a;max-height:0;overflow:hidden;transition:max-height .25s ease}
+nav a{padding:1rem 6vw;border-top:1px solid #ffffff14}
+#mt{display:flex;align-items:center;justify-content:center;width:2.6rem;height:2.6rem;background:none;border:1px solid var(--b);color:var(--i);font-size:1.1rem;cursor:pointer;order:3}
+#mt[aria-expanded=true]+nav,label:has(#mt[aria-expanded=true])+nav{max-height:0}
+header.open nav{max-height:70svh;overflow-y:auto}
+.lang{order:2}
+}
 h1{font-size:clamp(2.4rem,7vw,5.5rem);letter-spacing:.06em}.sig{font-size:1.1rem;letter-spacing:.06em;color:var(--o);margin:.6rem 0 1rem}.tag{max-width:36rem;color:var(--t)}
 .btns{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.8rem}.btn{display:inline-block;padding:.9rem 1.5rem;border:1px solid var(--o);text-decoration:none;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;background:none;color:var(--i);cursor:pointer;font-family:inherit}.btn.p{background:var(--o);color:var(--k)}.btn:hover{filter:brightness(1.12)}
 section{padding:clamp(3.5rem,9vw,7rem) 5vw}.light{background:var(--i);color:var(--k)}.light .btn{color:var(--k)}
@@ -84,12 +90,11 @@ figure{margin:0;position:relative;background:#000}figure img{display:block;width
 ol{padding-left:1.2rem;display:grid;gap:.3rem;margin:1.2rem 0}.geste{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr));margin-top:2rem}.geste img{width:100%;height:100%;max-height:26rem;object-fit:cover;display:block}
 form{display:grid;gap:.9rem;max-width:36rem;margin-top:1.5rem}input,select,textarea{width:100%;padding:.8rem;background:#1b1814;color:var(--i);border:1px solid var(--b);font:inherit}textarea{min-height:7rem}label{font-size:.85rem;color:var(--t);display:grid;gap:.3rem}.small{font-size:.85rem;color:var(--g)}
 footer{padding:2.5rem 5vw 6rem;font-size:.85rem;color:var(--g)}footer p{max-width:60rem;margin-top:.7rem}
-.fab{position:fixed;right:1rem;bottom:1rem;z-index:6;padding:.75rem 1.2rem;background:var(--k);border:1px solid var(--o);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;text-decoration:none}
+.fab{position:fixed;right:1rem;bottom:calc(1rem + env(safe-area-inset-bottom,0px));z-index:6;padding:.75rem 1.2rem;background:var(--k);border:1px solid var(--o);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;text-decoration:none}
 dialog{border:0;background:#000e;max-width:100vw;max-height:100vh;width:100%;height:100%;padding:0}dialog::backdrop{background:#000}.lb{width:100%;height:100%;overflow:auto;display:grid;place-items:center}.lb img{max-width:100%;max-height:100vh;cursor:zoom-in;transition:transform .2s}.lb img.z{transform:scale(2.6);cursor:zoom-out}
 dialog button{position:fixed;top:.8rem;right:1rem;z-index:2;background:var(--k);color:var(--i);border:1px solid var(--o);padding:.5rem .9rem;cursor:pointer}
 header{background:#0f0d0bf2}.brand{white-space:nowrap;font-size:1rem;letter-spacing:.1em}
 .hero{position:static;display:grid;min-height:0;padding:3.6rem 0 0;align-content:normal;background:var(--k)}.hero:before{display:none}
-.ph{position:relative;height:56svh;overflow:hidden}.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:40% 50%}
 .tx{padding:2.2rem 5vw 3.5rem}.tx .btn:not(.p){background:#1b1814}
 @media(min-width:900px){.hero{grid-template-columns:1fr 1fr;min-height:100svh}.ph{order:2;height:auto}.tx{align-self:center;padding:4rem 5vw}}
 .fab{opacity:0;pointer-events:none;transition:opacity .25s}.fab.on{opacity:1;pointer-events:auto}
@@ -105,13 +110,20 @@ JS="""var d=document,lb=d.getElementById('lb'),li=lb.querySelector('img');
 d.querySelectorAll('figure img').forEach(function(i){i.onclick=function(){li.src=i.dataset.full;li.alt=i.alt;li.className='';lb.showModal()}});
 li.onclick=function(e){var r=li.getBoundingClientRect();li.style.transformOrigin=(e.clientX-r.left)/r.width*100+'% '+(e.clientY-r.top)/r.height*100+'%';li.classList.toggle('z')};
 lb.querySelector('button').onclick=function(){lb.close()};
+var hdr=d.getElementById('hdr'),mt=d.getElementById('mt'),mnav=d.getElementById('mnav');
+function mclose(){hdr.classList.remove('open');mt.setAttribute('aria-expanded','false')}
+function mopen(){hdr.classList.add('open');mt.setAttribute('aria-expanded','true')}
+mt.onclick=function(){hdr.classList.contains('open')?mclose():mopen()};
+mnav.querySelectorAll('a').forEach(function(a){a.onclick=mclose});
+d.addEventListener('keydown',function(e){if(e.key==='Escape')mclose()});
+d.addEventListener('click',function(e){if(hdr.classList.contains('open')&&!hdr.contains(e.target))mclose()});
 d.querySelectorAll('.lang a').forEach(function(a){a.onclick=function(){try{localStorage.lang=a.hreflang}catch(e){}}});
 var f=d.getElementById('pf'),st=d.getElementById('st'),NL=String.fromCharCode(10),g=function(n){return f.elements[n].value};
 var ff=d.getElementById('ff');f.onsubmit=function(e){e.preventDefault();var fs=[].slice.call(ff.files),t=[f.dataset.wa,g('k')+' / '+g('t'),g('s'),g('m'),g('n'),g('c')].filter(Boolean).join(NL);
 if(fs.length&&navigator.canShare&&navigator.canShare({files:fs})){navigator.share({files:fs,text:t}).then(function(){st.textContent=f.dataset.done}).catch(function(){})}
 else{open('https://wa.me/WAWA?text='+encodeURIComponent(t));st.textContent=fs.length?f.dataset.att:f.dataset.done}};
 var fab=d.querySelector('.fab'),vis={};if(window.IntersectionObserver){var io=new IntersectionObserver(function(es){es.forEach(function(e){vis[e.target.id]=e.isIntersecting});fab.classList.toggle('on',!vis.h&&!vis.projet)});io.observe(d.getElementById('h'));io.observe(d.getElementById('projet'))}else fab.classList.add('on')
-;(function(){var t=d.getElementById('trk');if(!t)return;var n=t.children.length,i=0,pz=matchMedia('(prefers-reduced-motion:reduce)').matches,hold=0,hb,pp=d.getElementById('pp'),cp=d.getElementById('cp');
+;(function(){var t=d.getElementById('trk');if(!t||!t.children.length)return;var n=t.children.length,i=0,pz=matchMedia('(prefers-reduced-motion:reduce)').matches,hold=0,hb,pp=d.getElementById('pp'),cp=d.getElementById('cp');
 function lab(){cp.textContent=t.children[i].dataset.t+'  ('+(i+1)+'/'+n+')'}
 function st(){pp.textContent=pz?'▶':'❚❚';pp.setAttribute('aria-label',pz?pp.dataset.play:pp.dataset.pause)}
 function go(k){var w=k<0||k>=n;i=(k+n)%n;t.scrollTo({left:i*t.clientWidth,behavior:w?'auto':'smooth'});lab()}
@@ -167,8 +179,8 @@ for lg,c in T.items():
     ld='{"@context":"https://schema.org","@type":"LocalBusiness","name":"LITHOS IMPERIAL","description":%s,"url":"%s%s/","image":"%simg/og.jpg","telephone":"%s","founder":{"@type":"Person","name":"Kosta Imed LITHOS"},"address":{"@type":"PostalAddress","addressLocality":"Camporosso Mare","addressRegion":"Imperia","addressCountry":"IT"},"knowsLanguage":["fr","en","it"]}'%(json.dumps(c['d'],ensure_ascii=False),SITE,lg,SITE,TEL)
     langs=''.join(f'<a href="../{x}/" hreflang="{x}" lang="{x}"'+(' aria-current="page"' if x==lg else '')+f'>{x.upper()}</a>' for x in T)
     n=c['nav']
-    html=f'''<!doctype html><html lang="{lg}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{c['t']}</title><meta name="description" content="{c['d']}"><link rel="canonical" href="{SITE}{lg}/">{hl}<meta name="theme-color" content="#0f0d0b"><link rel="icon" href="../favicon-32.png" sizes="32x32"><link rel="apple-touch-icon" href="../apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:title" content="{c['t']}"><meta property="og:description" content="{c['d']}"><meta property="og:image" content="{SITE}img/og.jpg"><meta property="og:url" content="{SITE}{lg}/"><meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">{ld}</script><style>{CSS}</style></head><body>
-<header><a class="brand" href="#top"><img src="../favicon-32.png" width="34" height="34" alt="">LITHOS IMPERIAL</a><nav><a href="#oeuvres">{n[0]}</a><a href="#sur-mesure">{n[1]}</a><a href="#reproductions">{n[2]}</a><a href="#artiste">{c['an']}</a><a href="#atelier">{n[3]}</a><a href="#projet">{n[4]}</a></nav><div class="lang">{langs}</div></header>
+    html=f'''<!doctype html><html lang="{lg}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{c['t']}</title><meta name="description" content="{c['d']}"><link rel="canonical" href="{SITE}{lg}/">{hl}<meta name="theme-color" content="#0f0d0b"><link rel="icon" href="../favicon-32.png" sizes="32x32"><link rel="apple-touch-icon" href="../apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:title" content="{c['t']}"><meta property="og:description" content="{c['d']}"><meta property="og:image" content="{SITE}img/og.jpg"><meta property="og:url" content="{SITE}{lg}/"><meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">{ld}</script><style>{CSS}</style></head><body>
+<header id="hdr"><a class="brand" href="#top"><img src="../favicon-32.png" width="34" height="34" alt="">LITHOS IMPERIAL</a><nav id="mnav"><a href="#oeuvres">{n[0]}</a><a href="#sur-mesure">{n[1]}</a><a href="#reproductions">{n[2]}</a><a href="#artiste">{c['an']}</a><a href="#atelier">{n[3]}</a><a href="#projet">{n[4]}</a></nav><div class="lang">{langs}</div><button id="mt" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="mnav" aria-label="Menu">☰</button></header>
 <main id="top"><section class="hero" id="h"><div class="ph">{car}</div><div class="tx"><h1>LITHOS IMPERIAL</h1><p class="sig">{c['sig']}</p><p class="tag">{c['tag']}</p><div class="btns"><a class="btn p" href="#projet">{c['c1']}</a><a class="btn" href="#oeuvres">{c['c2']}</a></div></div></section>
 <section class="light"><div class="wrap"><h2>{c['ih']}</h2><p>{c['ip']}</p></div></section>
 <section id="oeuvres"><h2>{c['wh']}</h2><p class="small">{c['wz']}</p><div class="grid">{figs}</div><ul class="cats">{''.join(f'<li>{x}</li>' for x in c['cats'])}</ul></section>
