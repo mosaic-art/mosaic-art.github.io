@@ -97,7 +97,8 @@ header{background:#0f0d0bf2}.brand{white-space:nowrap;font-size:1rem;letter-spac
 .tx{padding:2.2rem 5vw 3.5rem}.tx .btn:not(.p){background:#1b1814}
 @media(min-width:900px){.hero{grid-template-columns:1fr 1fr;min-height:100svh}.ph{order:2;height:auto}.tx{align-self:center;padding:4rem 5vw}}
 .fab{opacity:0;pointer-events:none;transition:opacity .25s}.fab.on{opacity:1;pointer-events:auto}
-.scrollnav{position:fixed;left:.9rem;bottom:calc(1.1rem + env(safe-area-inset-bottom,0px));z-index:6;display:flex;flex-direction:column;gap:.5rem}
+.scrollnav{position:fixed;left:.9rem;bottom:calc(1.1rem + env(safe-area-inset-bottom,0px));z-index:6;opacity:0;pointer-events:none;transition:opacity .25s;display:flex;flex-direction:column;gap:.5rem}
+.scrollnav.on{opacity:1;pointer-events:auto}
 .scrollnav button{width:2.6rem;height:2.6rem;padding:0;border:1px solid var(--o);background:var(--k);cursor:pointer;display:grid;place-items:center}
 .scrollnav svg{width:1.3rem;height:1.3rem;display:block}
 .scrollnav button:hover{background:#1b1814}
@@ -141,7 +142,7 @@ var ff=d.getElementById('ff');f.onsubmit=function(e){e.preventDefault();var fs=[
 if(fs.length&&navigator.canShare&&navigator.canShare({files:fs})){navigator.share({files:fs,text:t}).then(function(){st.textContent=f.dataset.done}).catch(function(){})}
 else{open('https://wa.me/WAWA?text='+encodeURIComponent(t));st.textContent=fs.length?f.dataset.att:f.dataset.done}
 try{localStorage.setItem('li_sent','1')}catch(x){}popoStop()};
-var fab=d.querySelector('.fab'),vis={};if(window.IntersectionObserver){var io=new IntersectionObserver(function(es){es.forEach(function(e){vis[e.target.id]=e.isIntersecting});fab.classList.toggle('on',!vis.h&&!vis.projet)});io.observe(d.getElementById('h'));io.observe(d.getElementById('projet'))}else fab.classList.add('on');
+var fab=d.querySelector('.fab'),scn=d.querySelector('.scrollnav'),vis={};if(window.IntersectionObserver){var io=new IntersectionObserver(function(es){es.forEach(function(e){vis[e.target.id]=e.isIntersecting});fab.classList.toggle('on',!vis.h&&!vis.projet);scn.classList.toggle('on',!vis.h)});io.observe(d.getElementById('h'));io.observe(d.getElementById('projet'))}else{fab.classList.add('on');scn.classList.add('on')};
 ;(function(){var u=d.getElementById('snu'),w=d.getElementById('snd');if(!u||!w)return;
 u.onclick=function(){scrollTo({top:0,behavior:'smooth'})};
 w.onclick=function(){scrollTo({top:scrollY+innerHeight*.92,behavior:'smooth'})}})();
