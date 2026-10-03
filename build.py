@@ -83,8 +83,8 @@ h1{font-size:clamp(2.4rem,7vw,5.5rem);letter-spacing:.06em}.sig{font-size:1.1rem
 .btns{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.8rem}.btn{display:inline-block;padding:.9rem 1.5rem;border:1px solid var(--o);text-decoration:none;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;background:none;color:var(--i);cursor:pointer;font-family:inherit}.btn.p{background:var(--o);color:var(--k)}.btn:hover{filter:brightness(1.12)}
 section{padding:clamp(3.5rem,9vw,7rem) 5vw}.light{background:var(--i);color:var(--k)}.light .btn{color:var(--k)}
 h2{font-size:clamp(1.8rem,4vw,3rem);max-width:22ch;margin-bottom:1.2rem}.wrap{max-width:46rem}.light p,.wrap p{color:inherit}.dim{color:var(--t)}
-.grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fill,minmax(min(100%,16rem),1fr));margin:2rem 0}
-figure{margin:0;position:relative;background:#000}figure img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;cursor:zoom-in}figcaption{padding:.6rem .2rem;font-size:.9rem;color:var(--t)}figcaption b{font-weight:400;display:block;color:var(--i);font-family:Georgia,serif;font-size:1.05rem}
+.grid{columns:16rem;column-gap:1rem;margin:2rem 0}
+figure{margin:0 0 1rem;break-inside:avoid;position:relative;background:#141210}figure img{display:block;width:100%;height:auto;cursor:zoom-in}figcaption{padding:.6rem .2rem;font-size:.9rem;color:var(--t)}figcaption b{font-weight:400;display:block;color:var(--i);font-family:Georgia,serif;font-size:1.05rem}
 .cats{list-style:none;padding:0;display:grid;gap:.4rem;margin-top:1rem;color:var(--t)}
 ol{padding-left:1.2rem;display:grid;gap:.3rem;margin:1.2rem 0}.geste{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr));margin-top:2rem}.geste img{width:100%;height:100%;max-height:26rem;object-fit:cover;display:block}
 form{display:grid;gap:.9rem;max-width:36rem;margin-top:1.5rem}input,select,textarea{width:100%;padding:.8rem;background:#1b1814;color:var(--i);border:1px solid var(--b);font:inherit}textarea{min-height:7rem}label{font-size:.85rem;color:var(--t);display:grid;gap:.3rem}.small{font-size:.85rem;color:var(--g)}
