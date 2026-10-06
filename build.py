@@ -17,6 +17,28 @@ for f in sorted(os.listdir(U),key=str.lower):
     W,H=im.size;ws=sorted({w for w in(480,960,1600) if w<W}|{min(W,1600)});D[k]=(W,H,ws)
     for w in ws:im.resize((w,round(H*w/W)),Image.LANCZOS).save(f'{O}img/{k}-{w}.webp',quality=78,method=4)
     P.append((k,t))
+import json as _json, urllib.request as _ureq, urllib.parse as _uparse
+_TRCACHE={}
+def _translate(text,target):
+    key=(text,target)
+    if key in _TRCACHE:return _TRCACHE[key]
+    out=text
+    try:
+        url='https://api.mymemory.translated.net/get?q='+_uparse.quote(text)+'&langpair=fr|'+target
+        req=_ureq.Request(url,headers={'User-Agent':'Mozilla/5.0 (compatible; LithosImperialBuild/1.0)'})
+        with _ureq.urlopen(req,timeout=6) as r:
+            data=_json.loads(r.read().decode('utf-8'))
+        cand=(data.get('responseData') or {}).get('translatedText')
+        if cand and 0<len(cand)<=len(text)*4+30 and 'MYMEMORY WARNING' not in cand.upper():
+            out=cand
+    except Exception as _e:
+        print('traduction indisponible pour',repr(text),'->',target,':',_e)
+    _TRCACHE[key]=out
+    return out
+def TT(t,lg):
+    if lg=='fr':return t
+    raw=html.unescape(t)
+    return html.escape(_translate(raw,lg))
 L=Image.open(A+'logo.jpg').convert('RGB');L.resize((900,900),Image.LANCZOS).save(O+'img/logo.webp',quality=82)
 from PIL import ImageDraw,ImageFont,ImageOps as _IO
 og=Image.new('RGB',(1200,630),'#15110d')
@@ -247,17 +269,17 @@ for lg,c in T.items():
     c.update(X[lg])
     os.makedirs(O+lg,exist_ok=True)
     alts=[f'{a}, {b} — LITHOS IMPERIAL' for a,b in c['W']]
-    figs=''.join(f'<figure>{pic(k,t+" — LITHOS IMPERIAL")}<figcaption><b>{t}</b></figcaption></figure>' for k,t in P)
-    slides=''.join(f'<div class="sl" data-t="{t}">{pic(k,t+" — LITHOS IMPERIAL",j==0,"(min-width:900px) 50vw,100vw")}</div>' for j,(k,t) in enumerate(P))
+    figs=''.join(f'<figure>{pic(k,TT(t,lg)+" — LITHOS IMPERIAL")}<figcaption><b>{TT(t,lg)}</b></figcaption></figure>' for k,t in P)
+    slides=''.join(f'<div class="sl" data-t="{TT(t,lg)}">{pic(k,TT(t,lg)+" — LITHOS IMPERIAL",j==0,"(min-width:900px) 50vw,100vw")}</div>' for j,(k,t) in enumerate(P))
     car=f'<div class="car" role="region" aria-roledescription="carousel" aria-label="{c["cal"]}"><div class="trk" id="trk" tabindex="0">{slides}</div><div class="ctl"><button id="pv" type="button" aria-label="{c["cpv"]}">‹</button><button id="pp" type="button" data-play="{c["cpl"]}" data-pause="{c["cpa"]}">❚❚</button><button id="nx" type="button" aria-label="{c["cnx"]}">›</button><span id="cp"></span></div></div>'
     G=[k for k,t in P if any(w in t.lower() for w in ('geste','atelier','détail','detail'))][:3]
-    gs=''.join(pic(k,dict(P)[k]+' — LITHOS IMPERIAL') for k in G)
+    gs=''.join(pic(k,TT(dict(P)[k],lg)+' — LITHOS IMPERIAL') for k in G)
     art=f'<section id="artiste" class="alt"><div class="wrap"><h2>{c["ah2"]}</h2>'+''.join(f'<p>{x}</p>' for x in c['bio'])+'<ol class="tl">'+''.join(f'<li><b>{a}</b>{b}</li>' for a,b in c['tl'])+'</ol></div></section>'
     hl=''.join(f'<link rel="alternate" hreflang="{x}" href="{SITE}{x}/">' for x in T)+f'<link rel="alternate" hreflang="x-default" href="{SITE}">'
     ld='{"@context":"https://schema.org","@type":"LocalBusiness","name":"LITHOS IMPERIAL","description":%s,"url":"%s%s/","image":"%simg/og.jpg","telephone":"%s","founder":{"@type":"Person","name":"Kosta Imed LITHOS"},"address":{"@type":"PostalAddress","addressLocality":"Camporosso Mare","addressRegion":"Imperia","addressCountry":"IT"},"knowsLanguage":["fr","en","it"]}'%(json.dumps(c['d'],ensure_ascii=False),SITE,lg,SITE,TEL)
     langs=''.join(f'<a href="../{x}/" hreflang="{x}" lang="{x}"'+(' aria-current="page"' if x==lg else '')+f'>{x.upper()}</a>' for x in T)
     n=c['nav']
-    html=f'''<!doctype html><html lang="{lg}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{c['t']}</title><meta name="google-site-verification" content="LjJxjfjruOxmM15EPXt4FPjFMhXsCNZYhdZUjgpRTGk" /><meta name="description" content="{c['d']}"><link rel="canonical" href="{SITE}{lg}/">{hl}<meta name="theme-color" content="#0f0d0b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="LITHOS IMPERIAL"><link rel="icon" href="../favicon-32.png" sizes="32x32"><link rel="apple-touch-icon" href="../apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:title" content="{c['t']}"><meta property="og:description" content="{c['d']}"><meta property="og:image" content="{SITE}img/og.jpg"><meta property="og:url" content="{SITE}{lg}/"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{SITE}img/og.jpg"><script type="application/ld+json">{ld}</script><style>{CSS}</style></head><body>
+    page=f'''<!doctype html><html lang="{lg}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{c['t']}</title><meta name="google-site-verification" content="LjJxjfjruOxmM15EPXt4FPjFMhXsCNZYhdZUjgpRTGk" /><meta name="description" content="{c['d']}"><link rel="canonical" href="{SITE}{lg}/">{hl}<meta name="theme-color" content="#0f0d0b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="LITHOS IMPERIAL"><link rel="icon" href="../favicon-32.png" sizes="32x32"><link rel="apple-touch-icon" href="../apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:title" content="{c['t']}"><meta property="og:description" content="{c['d']}"><meta property="og:image" content="{SITE}img/og.jpg"><meta property="og:url" content="{SITE}{lg}/"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{SITE}img/og.jpg"><script type="application/ld+json">{ld}</script><style>{CSS}</style></head><body>
 <header id="hdr"><a class="brand" href="#top"><img src="../favicon-32.png" width="34" height="34" alt="">LITHOS IMPERIAL</a><nav id="mnav"><a href="#oeuvres">{n[0]}</a><a href="#sur-mesure">{n[1]}</a><a href="#reproductions">{n[2]}</a><a href="#artiste">{c['an']}</a><a href="#atelier">{n[3]}</a><a href="#projet">{n[4]}</a></nav><div class="lang">{langs}</div><button id="mt" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="mnav" aria-label="Menu">☰</button></header>
 <main id="top"><section class="hero" id="h"><div class="ph">{car}</div><div class="tx"><h1>LITHOS IMPERIAL</h1><p class="sig">{c['sig']}</p><p class="tag">{c['tag']}</p><div class="btns"><a class="btn p" href="#projet">{c['c1']}</a><a class="btn" href="#oeuvres">{c['c2']}</a></div></div></section>
 <section class="light"><div class="wrap"><h2>{c['ih']}</h2><p>{c['ip']}</p></div></section>
@@ -275,7 +297,7 @@ for lg,c in T.items():
 <nav class="scrollnav" aria-label="Navigation rapide"><button id="snu" type="button" aria-label="{c['su']}"><svg viewBox="0 0 24 24" fill="none"><g><rect x="10.3" y="3.2" width="3.4" height="3.4" fill="#f2ede2"/><rect x="6.9" y="6.6" width="3.4" height="3.4" fill="#d8ceb8"/><rect x="13.7" y="6.6" width="3.4" height="3.4" fill="#d8ceb8"/><rect x="3.5" y="10" width="3.4" height="3.4" fill="#a88f58"/><rect x="17.1" y="10" width="3.4" height="3.4" fill="#a88f58"/><rect x="0.1" y="13.4" width="3.4" height="3.4" fill="#4b4034"/><rect x="20.5" y="13.4" width="3.4" height="3.4" fill="#4b4034"/></g></svg></button><button id="snd" type="button" aria-label="{c['sd']}"><svg viewBox="0 0 24 24" fill="none"><g><rect x="0.1" y="7.2" width="3.4" height="3.4" fill="#4b4034"/><rect x="20.5" y="7.2" width="3.4" height="3.4" fill="#4b4034"/><rect x="3.5" y="10.6" width="3.4" height="3.4" fill="#a88f58"/><rect x="17.1" y="10.6" width="3.4" height="3.4" fill="#a88f58"/><rect x="6.9" y="14" width="3.4" height="3.4" fill="#d8ceb8"/><rect x="13.7" y="14" width="3.4" height="3.4" fill="#d8ceb8"/><rect x="10.3" y="17.4" width="3.4" height="3.4" fill="#f2ede2"/></g></svg></button></nav>
 <aside class="popo" id="popo" role="complementary" aria-live="polite"><button class="x" id="poc" type="button" aria-label="{c['pc']}">✕</button><h3>{c['ph']}</h3><p>{c['pb']}</p><a class="btn p" id="pog" href="#projet">{c['c1']}</a></aside>
 <dialog id="lb"><button aria-label="Close">✕</button><div class="lb"><img alt=""></div></dialog><script>{JS}</script></body></html>'''
-    open(O+lg+'/index.html','w').write(html)
+    open(O+lg+'/index.html','w').write(page)
 open(O+'index.html','w').write(f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{T["en"]["t"]}</title><meta name="google-site-verification" content="LjJxjfjruOxmM15EPXt4FPjFMhXsCNZYhdZUjgpRTGk" /><meta name="description" content="{T["en"]["d"]}"><link rel="canonical" href="{SITE}">{hl}<meta name="theme-color" content="#0f0d0b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="LITHOS IMPERIAL"><link rel="icon" href="favicon-32.png" sizes="32x32"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:title" content="{T["en"]["t"]}"><meta property="og:description" content="{T["en"]["d"]}"><meta property="og:image" content="{SITE}img/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:url" content="{SITE}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{SITE}img/og.jpg"><script>try{{var ls=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||"en"],l="en",i;for(i=0;i<ls.length;i++){{var cc=String(ls[i]).slice(0,2).toLowerCase();if(/^(fr|en|it)$/.test(cc)){{l=cc;break}}}}location.replace(l+"/"+location.hash)}}catch(e){{location.replace("en/")}}</script></head><body style="background:#0f0d0b;color:#f2ede2;font-family:sans-serif;text-align:center;padding:4rem"><img src="favicon-32.png" width="32" height="32" alt=""><h1>LITHOS IMPERIAL</h1><p><a href="fr/">Français</a> · <a href="en/">English</a> · <a href="it/">Italiano</a></p></body></html>''')
 open(O+'robots.txt','w').write(f'User-agent: *\nAllow: /\nSitemap: {SITE}sitemap.xml\n')
 open(O+'sitemap.xml','w').write('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'+''.join(f'<url><loc>{SITE}{x}/</loc>'+''.join(f'<xhtml:link rel="alternate" hreflang="{y}" href="{SITE}{y}/"/>' for y in T)+'</url>' for x in T)+'</urlset>')
