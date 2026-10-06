@@ -17,14 +17,50 @@ for f in sorted(os.listdir(U),key=str.lower):
     W,H=im.size;ws=sorted({w for w in(480,960,1600) if w<W}|{min(W,1600)});D[k]=(W,H,ws)
     for w in ws:im.resize((w,round(H*w/W)),Image.LANCZOS).save(f'{O}img/{k}-{w}.webp',quality=78,method=4)
     P.append((k,t))
-L=Image.open(A+'logo.jpg').convert('RGB');L.resize((900,900),Image.LANCZOS).save(O+'img/logo.webp',quality=82);L.resize((1200,1200)).save(O+'img/og.jpg',quality=82)
+L=Image.open(A+'logo.jpg').convert('RGB');L.resize((900,900),Image.LANCZOS).save(O+'img/logo.webp',quality=82)
+from PIL import ImageDraw,ImageFont,ImageOps as _IO
+og=Image.new('RGB',(1200,630),'#15110d')
+try:
+    bgname=next(f for n,(k,t) in enumerate(zip([p[0] for p in P],[p[1] for p in P])) if 'khamsa' in t.lower()) if False else None
+except Exception:
+    bgname=None
+bg_path=None
+for f in sorted(os.listdir(U),key=str.lower):
+    if f.lower().startswith('01') or 'khamsa' in f.lower():
+        bg_path=U+f;break
+if bg_path:
+    bgim=_IO.exif_transpose(Image.open(bg_path)).convert('RGB')
+    cw,ch=560,630
+    bw,bh=bgim.size
+    scale=max(cw/bw,ch/bh)
+    bgim=bgim.resize((round(bw*scale),round(bh*scale)),Image.LANCZOS)
+    bx=(bgim.width-cw)//2;by=(bgim.height-ch)//2
+    bgim=bgim.crop((bx,by,bx+cw,by+ch))
+    og.paste(bgim,(1200-cw,0))
+    grad=Image.new('L',(cw,ch),0)
+    gd=ImageDraw.Draw(grad)
+    for gx in range(cw):
+        a=int(255*max(0,1-gx/(cw*0.55)))
+        gd.line([(gx,0),(gx,ch)],fill=a)
+    dark=Image.new('RGB',(cw,ch),'#15110d')
+    og.paste(Image.composite(dark,bgim,grad),(1200-cw,0))
+og.paste(L.resize((120,120),Image.LANCZOS),(80,75))
+d=ImageDraw.Draw(og)
+def _font(sz,bold=False):
+    for fp in ('/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf' if bold else '/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf',):
+        if os.path.exists(fp):return ImageFont.truetype(fp,sz)
+    return ImageFont.load_default()
+d.text((80,235),'LITHOS IMPERIAL',font=_font(56,True),fill='#f2ede2')
+d.text((82,302),"L'ART DE LA MOSAÏQUE ANTIQUE SUR MESURE",font=_font(20),fill='#a88f58')
+d.text((82,356),'Camporosso Mare · Imperia · Italia',font=_font(17),fill='#a9a39a')
+og.save(O+'img/og.jpg',quality=88)
 m=L.crop((330,150,950,770));[m.resize((s,s),Image.LANCZOS).save(O+n) for s,n in((32,'favicon-32.png'),(180,'apple-touch-icon.png'),(512,'icon-512.png'))]
 def pic(k,alt,eager=False,sz='(min-width:900px) 33vw,100vw'):
     W,H,ws=D[k];a=f'../img/{k}-{ws[-1]}.webp'
     return f'<img src="{a}" srcset="'+','.join(f'../img/{k}-{w}.webp {w}w' for w in ws)+f'" sizes="{sz}" width="{ws[-1]}" height="{round(H*ws[-1]/W)}" alt="{alt}" data-full="{a}"'+(' fetchpriority="high"' if eager else ' loading="lazy" decoding="async"')+'>'
 SITE='https://mosaic-art.github.io/';TEL='+39 351 386 6250';WA='393513866250'
 T={
-'fr':dict(t="LITHOS IMPERIAL — Mosaïste d'art, mosaïque sur mesure en pierre naturelle",d="Atelier d'art mosaïste à Camporosso Mare (Ligurie) : tableaux en mosaïque, fresques, sols, piscines et reproductions de mosaïques romaines et carthaginoises, faits main en pierre naturelle.",
+'fr':dict(t="LITHOS IMPERIAL — Mosaïste d'art en pierre naturelle",d="Atelier d'art mosaïste à Camporosso Mare (Ligurie) : tableaux, fresques, sols et piscines en mosaïque, créés à la main en pierre naturelle.",
  tag="Créations originales et reproductions façonnées à la main en pierre naturelle, inspirées des traditions de Carthage et de Rome.",sig="L'art de la mosaïque antique sur mesure",c1="Présenter mon projet",c2="Découvrir les œuvres",
  nav=["Œuvres","Sur mesure","Reproductions","L'atelier","Contact"],
  ih="Une œuvre commence par une pierre.",ip="Chaque mosaïque est assemblée comme une œuvre d'art. La matière, la découpe, l'orientation des tesselles et les irrégularités naturelles de la pierre font son caractère. De la petite pièce de collection à la composition monumentale, l'atelier réalise créations originales et reproductions, adaptées aux dimensions et à l'univers de votre projet.",
@@ -37,7 +73,7 @@ T={
  ph="Présenter mon projet",pp="Une idée, une image, un espace ? Décrivez-le : chaque demande est étudiée individuellement par l'atelier.",fl=["Votre nom","Type d'œuvre","Dimensions approximatives","Décrivez votre idée ou l'espace concerné"],
  opts=["Tableau","Œuvre murale / fresque","Sol / médaillon","Piscine / fontaine","Autre"],send="Présenter mon projet à l'atelier",note="Le message s'ouvre dans WhatsApp, vous pouvez y joindre photos et plans. Ce site n'enregistre aucune donnée.",wa="Bonjour, je souhaite présenter un projet à LITHOS IMPERIAL.",
  lh="Mentions légales et confidentialité",lp=["Éditeur : Kosta Imed LITHOS, atelier LITHOS IMPERIAL, Camporosso Mare (IM), Italie. Tél. +39 351 386 6250. N° TVA / P.IVA : IT 1845760089. Hébergement : GitHub Pages (GitHub, Inc., États-Unis).","Confidentialité (RGPD, règlement UE 2016/679) : ce site n'utilise ni cookies ni outil de suivi. Le message et les fichiers envoyés via le formulaire servent uniquement à répondre à votre demande ; ils transitent par des prestataires techniques (stockage de fichiers, messagerie) et ne sont conservés que le temps nécessaire à son traitement. L'hébergeur peut journaliser votre adresse IP pour la sécurité. Vos droits d'accès, de rectification et d'effacement s'exercent auprès de l'atelier ; vous pouvez saisir le Garante per la protezione dei dati personali.","Les œuvres et photographies présentées sont la propriété de l'atelier ; toute reproduction sans autorisation est interdite."],pv="Contact"),
-'en':dict(t="LITHOS IMPERIAL — Mosaic artist, bespoke handcrafted stone mosaics",d="Mosaic art atelier in Camporosso Mare (Liguria, Italy): bespoke mosaic artworks, murals, floors, pools and reproductions of Roman and Carthaginian mosaics, handmade in natural stone.",
+'en':dict(t="LITHOS IMPERIAL — Handcrafted stone mosaic artist",d="Mosaic art atelier in Camporosso Mare, Italy: bespoke panels, murals, floors and pools, handmade in natural stone.",
  tag="Original creations and reproductions shaped by hand in natural stone, inspired by the traditions of Carthage and Rome.",sig="The art of antique mosaic, made to measure",c1="Present my project",c2="Discover the works",
  nav=["Works","Bespoke","Reproductions","The atelier","Contact"],
  ih="A work begins with a stone.",ip="Every mosaic is assembled as a work of art. The material, the cut, the direction of the tesserae and the natural irregularities of the stone give it character. From a small collector's piece to a monumental composition, the atelier creates original works and reproductions, fitted to the size and spirit of your project.",
@@ -50,7 +86,7 @@ T={
  ph="Present my project",pp="An idea, an image, a space? Describe it: every request is studied individually by the atelier.",fl=["Your name","Type of work","Approximate dimensions","Describe your idea or the space"],
  opts=["Panel","Mural / fresco","Floor / medallion","Pool / fountain","Other"],send="Present my project to the atelier",note="The message opens in WhatsApp, where you can attach photos and plans. This site stores no data.",wa="Hello, I would like to present a project to LITHOS IMPERIAL.",
  lh="Legal notice and privacy",lp=["Publisher: Kosta Imed LITHOS, atelier LITHOS IMPERIAL, Camporosso Mare (IM), Italy. Tel. +39 351 386 6250. VAT / P.IVA: IT 1845760089. Hosting: GitHub Pages (GitHub, Inc., USA).","Privacy (GDPR, EU Regulation 2016/679): this site uses no cookies or tracking. The message and files sent through the form are used only to answer your request; they pass through technical providers (file storage, messaging) and are kept only as long as needed to handle it. The host may log your IP address for security. You may exercise your rights of access, rectification and erasure with the atelier, or contact the Italian Garante per la protezione dei dati personali.","The works and photographs shown belong to the atelier; reproduction without permission is prohibited."],pv="Contact"),
-'it':dict(t="LITHOS IMPERIAL — Mosaicista d'arte, mosaici su misura in pietra naturale",d="Atelier di mosaico artistico a Camporosso Mare (Liguria): quadri, murali, pavimenti, piscine e riproduzioni di mosaici romani e cartaginesi, fatti a mano in pietra naturale.",
+'it':dict(t="LITHOS IMPERIAL — Mosaicista d'arte in pietra naturale",d="Atelier di mosaico artistico a Camporosso Mare (Liguria): quadri, murali, pavimenti e piscine, realizzati a mano in pietra naturale.",
  tag="Creazioni originali e riproduzioni modellate a mano in pietra naturale, ispirate alle tradizioni di Cartagine e di Roma.",sig="L'arte del mosaico antico su misura",c1="Presenta il tuo progetto",c2="Scopri le opere",
  nav=["Opere","Su misura","Riproduzioni","L'atelier","Contatto"],
  ih="Un'opera comincia da una pietra.",ip="Ogni mosaico è composto come un'opera d'arte. La materia, il taglio, l'orientamento delle tessere e le irregolarità naturali della pietra ne fanno il carattere. Dal piccolo pezzo da collezione alla composizione monumentale, l'atelier realizza creazioni originali e riproduzioni, adatte alle dimensioni e allo spirito del progetto.",
@@ -90,7 +126,7 @@ ol{padding-left:1.2rem;display:grid;gap:.3rem;margin:1.2rem 0}.geste{display:gri
 form{display:grid;gap:.9rem;max-width:36rem;margin-top:1.5rem}input,select,textarea{width:100%;padding:.8rem;background:#1b1814;color:var(--i);border:1px solid var(--b);font:inherit}textarea{min-height:7rem}label{font-size:.85rem;color:var(--t);display:grid;gap:.3rem}.small{font-size:.85rem;color:var(--g)}
 footer{padding:2.5rem 5vw 6rem;font-size:.85rem;color:var(--g)}footer p{max-width:60rem;margin-top:.7rem}
 .fab{position:fixed;right:1rem;bottom:calc(1rem + env(safe-area-inset-bottom,0px));z-index:6;padding:.75rem 1.2rem;background:var(--k);border:1px solid var(--o);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;text-decoration:none}
-dialog{border:0;background:#000e;max-width:100vw;max-height:100vh;width:100%;height:100%;padding:0}dialog::backdrop{background:#000}.lb{width:100%;height:100%;overflow:auto;display:grid;place-items:center}.lb img{max-width:100%;max-height:100vh;cursor:zoom-in;transition:transform .2s}.lb img.z{transform:scale(2.6);cursor:zoom-out}
+dialog{border:0;background:#000e;max-width:100vw;max-height:100vh;max-height:100dvh;width:100%;height:100%;padding:0}dialog::backdrop{background:#000}.lb{width:100%;height:100%;overflow:auto;display:grid;place-items:center}.lb img{max-width:100%;max-height:100vh;max-height:100dvh;cursor:zoom-in;transition:transform .2s}.lb img.z{transform:scale(2.6);cursor:zoom-out}
 dialog button{position:fixed;top:.8rem;right:1rem;z-index:2;background:var(--k);color:var(--i);border:1px solid var(--o);padding:.5rem .9rem;cursor:pointer}
 header{background:#0f0d0bf2}.brand{white-space:nowrap;font-size:1rem;letter-spacing:.1em}
 .hero{position:static;display:grid;min-height:0;padding:3.6rem 0 0;align-content:normal;background:var(--k)}.hero:before{display:none}
@@ -221,7 +257,7 @@ for lg,c in T.items():
     ld='{"@context":"https://schema.org","@type":"LocalBusiness","name":"LITHOS IMPERIAL","description":%s,"url":"%s%s/","image":"%simg/og.jpg","telephone":"%s","founder":{"@type":"Person","name":"Kosta Imed LITHOS"},"address":{"@type":"PostalAddress","addressLocality":"Camporosso Mare","addressRegion":"Imperia","addressCountry":"IT"},"knowsLanguage":["fr","en","it"]}'%(json.dumps(c['d'],ensure_ascii=False),SITE,lg,SITE,TEL)
     langs=''.join(f'<a href="../{x}/" hreflang="{x}" lang="{x}"'+(' aria-current="page"' if x==lg else '')+f'>{x.upper()}</a>' for x in T)
     n=c['nav']
-    html=f'''<!doctype html><html lang="{lg}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{c['t']}</title><meta name="google-site-verification" content="LjJxjfjruOxmM15EPXt4FPjFMhXsCNZYhdZUjgpRTGk" /><meta name="description" content="{c['d']}"><link rel="canonical" href="{SITE}{lg}/">{hl}<meta name="theme-color" content="#0f0d0b"><link rel="icon" href="../favicon-32.png" sizes="32x32"><link rel="apple-touch-icon" href="../apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:title" content="{c['t']}"><meta property="og:description" content="{c['d']}"><meta property="og:image" content="{SITE}img/og.jpg"><meta property="og:url" content="{SITE}{lg}/"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="1200"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{SITE}img/og.jpg"><script type="application/ld+json">{ld}</script><style>{CSS}</style></head><body>
+    html=f'''<!doctype html><html lang="{lg}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{c['t']}</title><meta name="google-site-verification" content="LjJxjfjruOxmM15EPXt4FPjFMhXsCNZYhdZUjgpRTGk" /><meta name="description" content="{c['d']}"><link rel="canonical" href="{SITE}{lg}/">{hl}<meta name="theme-color" content="#0f0d0b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="LITHOS IMPERIAL"><link rel="icon" href="../favicon-32.png" sizes="32x32"><link rel="apple-touch-icon" href="../apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:title" content="{c['t']}"><meta property="og:description" content="{c['d']}"><meta property="og:image" content="{SITE}img/og.jpg"><meta property="og:url" content="{SITE}{lg}/"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{SITE}img/og.jpg"><script type="application/ld+json">{ld}</script><style>{CSS}</style></head><body>
 <header id="hdr"><a class="brand" href="#top"><img src="../favicon-32.png" width="34" height="34" alt="">LITHOS IMPERIAL</a><nav id="mnav"><a href="#oeuvres">{n[0]}</a><a href="#sur-mesure">{n[1]}</a><a href="#reproductions">{n[2]}</a><a href="#artiste">{c['an']}</a><a href="#atelier">{n[3]}</a><a href="#projet">{n[4]}</a></nav><div class="lang">{langs}</div><button id="mt" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="mnav" aria-label="Menu">☰</button></header>
 <main id="top"><section class="hero" id="h"><div class="ph">{car}</div><div class="tx"><h1>LITHOS IMPERIAL</h1><p class="sig">{c['sig']}</p><p class="tag">{c['tag']}</p><div class="btns"><a class="btn p" href="#projet">{c['c1']}</a><a class="btn" href="#oeuvres">{c['c2']}</a></div></div></section>
 <section class="light"><div class="wrap"><h2>{c['ih']}</h2><p>{c['ip']}</p></div></section>
@@ -240,7 +276,7 @@ for lg,c in T.items():
 <aside class="popo" id="popo" role="complementary" aria-live="polite"><button class="x" id="poc" type="button" aria-label="{c['pc']}">✕</button><h3>{c['ph']}</h3><p>{c['pb']}</p><a class="btn p" id="pog" href="#projet">{c['c1']}</a></aside>
 <dialog id="lb"><button aria-label="Close">✕</button><div class="lb"><img alt=""></div></dialog><script>{JS}</script></body></html>'''
     open(O+lg+'/index.html','w').write(html)
-open(O+'index.html','w').write(f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{T["en"]["t"]}</title><meta name="google-site-verification" content="LjJxjfjruOxmM15EPXt4FPjFMhXsCNZYhdZUjgpRTGk" /><meta name="description" content="{T["en"]["d"]}"><link rel="canonical" href="{SITE}">{hl}<meta name="theme-color" content="#0f0d0b"><link rel="icon" href="favicon-32.png" sizes="32x32"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:title" content="{T["en"]["t"]}"><meta property="og:description" content="{T["en"]["d"]}"><meta property="og:image" content="{SITE}img/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="1200"><meta property="og:url" content="{SITE}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{SITE}img/og.jpg"><script>try{{var ls=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||"en"],l="en",i;for(i=0;i<ls.length;i++){{var cc=String(ls[i]).slice(0,2).toLowerCase();if(/^(fr|en|it)$/.test(cc)){{l=cc;break}}}}location.replace(l+"/"+location.hash)}}catch(e){{location.replace("en/")}}</script></head><body style="background:#0f0d0b;color:#f2ede2;font-family:sans-serif;text-align:center;padding:4rem"><img src="favicon-32.png" width="32" height="32" alt=""><h1>LITHOS IMPERIAL</h1><p><a href="fr/">Français</a> · <a href="en/">English</a> · <a href="it/">Italiano</a></p></body></html>''')
+open(O+'index.html','w').write(f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{T["en"]["t"]}</title><meta name="google-site-verification" content="LjJxjfjruOxmM15EPXt4FPjFMhXsCNZYhdZUjgpRTGk" /><meta name="description" content="{T["en"]["d"]}"><link rel="canonical" href="{SITE}">{hl}<meta name="theme-color" content="#0f0d0b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="LITHOS IMPERIAL"><link rel="icon" href="favicon-32.png" sizes="32x32"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:title" content="{T["en"]["t"]}"><meta property="og:description" content="{T["en"]["d"]}"><meta property="og:image" content="{SITE}img/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:url" content="{SITE}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{SITE}img/og.jpg"><script>try{{var ls=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||"en"],l="en",i;for(i=0;i<ls.length;i++){{var cc=String(ls[i]).slice(0,2).toLowerCase();if(/^(fr|en|it)$/.test(cc)){{l=cc;break}}}}location.replace(l+"/"+location.hash)}}catch(e){{location.replace("en/")}}</script></head><body style="background:#0f0d0b;color:#f2ede2;font-family:sans-serif;text-align:center;padding:4rem"><img src="favicon-32.png" width="32" height="32" alt=""><h1>LITHOS IMPERIAL</h1><p><a href="fr/">Français</a> · <a href="en/">English</a> · <a href="it/">Italiano</a></p></body></html>''')
 open(O+'robots.txt','w').write(f'User-agent: *\nAllow: /\nSitemap: {SITE}sitemap.xml\n')
 open(O+'sitemap.xml','w').write('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'+''.join(f'<url><loc>{SITE}{x}/</loc>'+''.join(f'<xhtml:link rel="alternate" hreflang="{y}" href="{SITE}{y}/"/>' for y in T)+'</url>' for x in T)+'</urlset>')
 open(O+'.nojekyll','w').write('')
