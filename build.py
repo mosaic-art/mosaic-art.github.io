@@ -17,23 +17,36 @@ for f in sorted(os.listdir(U),key=str.lower):
     W,H=im.size;ws=sorted({w for w in(480,960,1600) if w<W}|{min(W,1600)});D[k]=(W,H,ws)
     for w in ws:im.resize((w,round(H*w/W)),Image.LANCZOS).save(f'{O}img/{k}-{w}.webp',quality=78,method=4)
     P.append((k,t))
-import json as _json, urllib.request as _ureq, urllib.parse as _uparse
+import json as _json, urllib.request as _ureq, urllib.parse as _uparse, time as _time
 _TRCACHE={}
+_TR_EMAIL=''
+_ep=R+'contact-email.txt'
+if os.path.exists(_ep):
+    try:
+        with open(_ep,encoding='utf-8') as _f:_TR_EMAIL=_f.read().strip()
+    except Exception:pass
 def _translate(text,target):
     key=(text,target)
     if key in _TRCACHE:return _TRCACHE[key]
     out=text
-    try:
-        url='https://api.mymemory.translated.net/get?q='+_uparse.quote(text)+'&langpair=fr|'+target
-        req=_ureq.Request(url,headers={'User-Agent':'Mozilla/5.0 (compatible; LithosImperialBuild/1.0)'})
-        with _ureq.urlopen(req,timeout=6) as r:
-            data=_json.loads(r.read().decode('utf-8'))
-        cand=(data.get('responseData') or {}).get('translatedText')
-        if cand and 0<len(cand)<=len(text)*4+30 and 'MYMEMORY WARNING' not in cand.upper():
-            out=cand
-    except Exception as _e:
-        print('traduction indisponible pour',repr(text),'->',target,':',_e)
+    url='https://api.mymemory.translated.net/get?q='+_uparse.quote(text)+'&langpair=fr|'+target
+    if _TR_EMAIL:url+='&de='+_uparse.quote(_TR_EMAIL)
+    for _attempt in range(3):
+        try:
+            req=_ureq.Request(url,headers={'User-Agent':'Mozilla/5.0 (compatible; LithosImperialBuild/1.0)'})
+            with _ureq.urlopen(req,timeout=6) as r:
+                data=_json.loads(r.read().decode('utf-8'))
+            cand=(data.get('responseData') or {}).get('translatedText')
+            if cand and 0<len(cand)<=len(text)*4+30 and 'MYMEMORY WARNING' not in cand.upper():
+                out=cand
+            break
+        except Exception as _e:
+            if _attempt<2 and '429' in str(_e):
+                _time.sleep(1.5*(_attempt+1));continue
+            print('traduction indisponible pour',repr(text),'->',target,':',_e)
+            break
     _TRCACHE[key]=out
+    _time.sleep(0.12)
     return out
 def TT(t,lg):
     if lg=='fr':return t
@@ -196,7 +209,7 @@ mnav.querySelectorAll('a').forEach(function(a){a.onclick=mclose});
 d.addEventListener('keydown',function(e){if(e.key==='Escape')mclose()});
 d.addEventListener('click',function(e){if(hdr.classList.contains('open')&&!hdr.contains(e.target))mclose()});
 var f=d.getElementById('pf'),st=d.getElementById('st'),NL=String.fromCharCode(10),g=function(n){return f.elements[n].value};
-var ff=d.getElementById('ff');f.onsubmit=function(e){e.preventDefault();var fs=[].slice.call(ff.files),t=[f.dataset.wa,g('k')+' / '+g('t'),g('s'),g('m'),g('n'),g('c')].filter(Boolean).join(NL);
+var ff=d.getElementById('ff');f.onsubmit=function(e){e.preventDefault();var fs=[].slice.call(ff.files),t=[f.dataset.wa,g('pr'),g('k')+' / '+g('t'),g('s'),g('m'),g('n'),g('c')].filter(Boolean).join(NL);
 if(fs.length&&navigator.canShare&&navigator.canShare({files:fs})){navigator.share({files:fs,text:t}).then(function(){st.textContent=f.dataset.done}).catch(function(){})}
 else{open('https://wa.me/WAWA?text='+encodeURIComponent(t));st.textContent=fs.length?f.dataset.att:f.dataset.done}
 try{localStorage.setItem('li_sent','1')}catch(x){}popoStop()};
@@ -263,6 +276,42 @@ POPO={'fr':dict(ph="Un projet sur-mesure en mosaïque&nbsp;?",pb="Décrivez votr
 'en':dict(ph="A bespoke mosaic project?",pb="Describe your idea or send us a photo of your space (wall, façade, terrace, garden, office). We will propose, <b>free of charge</b>, a unique work of art, fully personalised and created especially for you.",pc="Close",su="Back to top",sd="Scroll down"),
 'it':dict(ph="Un progetto di mosaico su misura?",pb="Descrivi la tua idea o inviaci una foto del tuo spazio (muro, facciata, terrazza, giardino, ufficio). Ti proporremo <b>gratuitamente</b> un'opera d'arte unica, interamente personalizzata e creata appositamente per te.",pc="Chiudi",su="Torna in alto",sd="Scorri in basso")}
 for lg,v in POPO.items():X[lg].update(v)
+
+PRO={
+'fr':dict(pron="Professionnels",
+ proh="Vous imaginez l'espace. Nous réalisons la mosaïque.",
+ prop="L'atelier collabore avec architectes, décorateurs, designers d'intérieur, hôtels, galeries et maîtres d'ouvrage lorsque leur projet demande une pièce en mosaïque. Le métier reste celui d'artisan mosaïste : vous concevez l'espace, l'atelier conçoit et réalise l'œuvre qui s'y intègre.",
+ prosvc=["Réalisation sur mesure, à partir de vos plans ou de vos dimensions","Échantillons de matériaux avant lancement de la production","Choix des pierres, marbres et nuances adaptés au projet","Reproduction fidèle d'un motif existant ou d'une référence fournie","Création d'une œuvre originale pour un lieu spécifique","Panneaux muraux, tableaux, sols, médaillons et pièces pour piscines","Livraison, et coordination de la pose lorsque le projet le nécessite"],
+ prosh="Déroulé d'une collaboration",
+ prosteps=["Transmission du plan, des dimensions et des contraintes du lieu","Échange avec l'atelier et proposition d'échantillons","Validation des matériaux et du budget","Réalisation dans l'atelier, à Camporosso Mare","Livraison et, si nécessaire, coordination de la pose"],
+ prot="Chaque œuvre livrée est accompagnée de son titre d'authenticité, utile pour vos dossiers client, vos assurances ou une revente future.",
+ prolink="En savoir plus sur l'authenticité des œuvres",
+ proc="Présenter un projet professionnel",
+ prf="Votre profil",
+ prfopts=["Particulier","Architecte","Décorateur / Designer","Hôtel / établissement","Galerie","Collectionneur","Autre professionnel"]),
+'en':dict(pron="For professionals",
+ proh="You imagine the space. We create the mosaic.",
+ prop="The atelier works alongside architects, interior designers, decorators, hotels, galleries and project owners whenever a project calls for a mosaic piece. The craft remains that of a mosaic artisan: you design the space, the atelier designs and creates the work that fits within it.",
+ prosvc=["Bespoke execution, from your plans or supplied dimensions","Material samples before production begins","Choice of stones, marbles and shades suited to the project","Faithful reproduction of an existing motif or reference","Creation of an original work for a specific location","Wall panels, framed pieces, floors, medallions and pool mosaics","Delivery, and installation coordination when the project requires it"],
+ prosh="How a collaboration unfolds",
+ prosteps=["You send the plan, dimensions and constraints of the space","A conversation with the atelier, followed by material samples","Materials and budget confirmed","Production in the atelier, in Camporosso Mare","Delivery and, where needed, installation coordination"],
+ prot="Every work is delivered with its title of authenticity, useful for client files, insurance or a future resale.",
+ prolink="More about the authenticity of the works",
+ proc="Present a professional project",
+ prf="Your profile",
+ prfopts=["Private individual","Architect","Decorator / Designer","Hotel / venue","Gallery","Collector","Other professional"]),
+'it':dict(pron="Professionisti",
+ proh="Voi immaginate lo spazio. Noi realizziamo il mosaico.",
+ prop="L'atelier collabora con architetti, interior designer, decoratori, hotel, gallerie e committenti quando un progetto richiede un'opera in mosaico. Il mestiere resta quello dell'artigiano mosaicista: voi disegnate lo spazio, l'atelier progetta e realizza l'opera che vi si inserisce.",
+ prosvc=["Realizzazione su misura, a partire dai vostri piani o dimensioni","Campioni di materiali prima dell'avvio della produzione","Scelta di pietre, marmi e sfumature adatte al progetto","Riproduzione fedele di un motivo esistente o di un riferimento fornito","Creazione di un'opera originale per un luogo specifico","Pannelli murali, quadri, pavimenti, medaglioni e piscine","Consegna e, quando necessario, coordinamento della posa"],
+ prosh="Come si svolge una collaborazione",
+ prosteps=["Invio di piano, dimensioni e vincoli dello spazio","Confronto con l'atelier e proposta di campioni","Conferma di materiali e budget","Realizzazione in atelier, a Camporosso Mare","Consegna e, se necessario, coordinamento della posa"],
+ prot="Ogni opera viene consegnata con il proprio titolo di autenticità, utile per i vostri archivi cliente, le assicurazioni o una futura rivendita.",
+ prolink="Maggiori informazioni sull'autenticità delle opere",
+ proc="Presenta un progetto professionale",
+ prf="Il tuo profilo",
+ prfopts=["Privato","Architetto","Decoratore / Designer","Hotel / struttura","Galleria","Collezionista","Altro professionista"])}
+for lg,v in PRO.items():X[lg].update(v)
 ORD=['arbre','khamsa','sol','pilier','bordure']
 import json
 for lg,c in T.items():
@@ -274,13 +323,15 @@ for lg,c in T.items():
     car=f'<div class="car" role="region" aria-roledescription="carousel" aria-label="{c["cal"]}"><div class="trk" id="trk" tabindex="0">{slides}</div><div class="ctl"><button id="pv" type="button" aria-label="{c["cpv"]}">‹</button><button id="pp" type="button" data-play="{c["cpl"]}" data-pause="{c["cpa"]}">❚❚</button><button id="nx" type="button" aria-label="{c["cnx"]}">›</button><span id="cp"></span></div></div>'
     G=[k for k,t in P if any(w in t.lower() for w in ('geste','atelier','détail','detail'))][:3]
     gs=''.join(pic(k,TT(dict(P)[k],lg)+' — LITHOS IMPERIAL') for k in G)
+    _poolk=next((k for k,t in P if 'poisson' in t.lower() or 'sol' in t.lower() or 'pilier' in t.lower()),(P[0][0] if P else None))
+    pro_img=pic(_poolk,'Mosaïque architecturale — LITHOS IMPERIAL') if _poolk else ''
     art=f'<section id="artiste" class="alt"><div class="wrap"><h2>{c["ah2"]}</h2>'+''.join(f'<p>{x}</p>' for x in c['bio'])+'<ol class="tl">'+''.join(f'<li><b>{a}</b>{b}</li>' for a,b in c['tl'])+'</ol></div></section>'
     hl=''.join(f'<link rel="alternate" hreflang="{x}" href="{SITE}{x}/">' for x in T)+f'<link rel="alternate" hreflang="x-default" href="{SITE}">'
     ld='{"@context":"https://schema.org","@type":"LocalBusiness","name":"LITHOS IMPERIAL","description":%s,"url":"%s%s/","image":"%simg/og.jpg","telephone":"%s","founder":{"@type":"Person","name":"Kosta Imed LITHOS"},"address":{"@type":"PostalAddress","addressLocality":"Camporosso Mare","addressRegion":"Imperia","addressCountry":"IT"},"knowsLanguage":["fr","en","it"]}'%(json.dumps(c['d'],ensure_ascii=False),SITE,lg,SITE,TEL)
     langs=''.join(f'<a href="../{x}/" hreflang="{x}" lang="{x}"'+(' aria-current="page"' if x==lg else '')+f'>{x.upper()}</a>' for x in T)
     n=c['nav']
     page=f'''<!doctype html><html lang="{lg}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{c['t']}</title><meta name="google-site-verification" content="LjJxjfjruOxmM15EPXt4FPjFMhXsCNZYhdZUjgpRTGk" /><meta name="description" content="{c['d']}"><link rel="canonical" href="{SITE}{lg}/">{hl}<meta name="theme-color" content="#0f0d0b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="LITHOS IMPERIAL"><link rel="icon" href="../favicon-32.png" sizes="32x32"><link rel="apple-touch-icon" href="../apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:title" content="{c['t']}"><meta property="og:description" content="{c['d']}"><meta property="og:image" content="{SITE}img/og.jpg"><meta property="og:url" content="{SITE}{lg}/"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{SITE}img/og.jpg"><script type="application/ld+json">{ld}</script><style>{CSS}</style></head><body>
-<header id="hdr"><a class="brand" href="#top"><img src="../favicon-32.png" width="34" height="34" alt="">LITHOS IMPERIAL</a><nav id="mnav"><a href="#oeuvres">{n[0]}</a><a href="#sur-mesure">{n[1]}</a><a href="#reproductions">{n[2]}</a><a href="#artiste">{c['an']}</a><a href="#atelier">{n[3]}</a><a href="#projet">{n[4]}</a></nav><div class="lang">{langs}</div><button id="mt" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="mnav" aria-label="Menu">☰</button></header>
+<header id="hdr"><a class="brand" href="#top"><img src="../favicon-32.png" width="34" height="34" alt="">LITHOS IMPERIAL</a><nav id="mnav"><a href="#oeuvres">{n[0]}</a><a href="#sur-mesure">{n[1]}</a><a href="#reproductions">{n[2]}</a><a href="#artiste">{c['an']}</a><a href="#atelier">{n[3]}</a><a href="#pro">{c['pron']}</a><a href="#projet">{n[4]}</a></nav><div class="lang">{langs}</div><button id="mt" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="mnav" aria-label="Menu">☰</button></header>
 <main id="top"><section class="hero" id="h"><div class="ph">{car}</div><div class="tx"><h1>LITHOS IMPERIAL</h1><p class="sig">{c['sig']}</p><p class="tag">{c['tag']}</p><div class="btns"><a class="btn p" href="#projet">{c['c1']}</a><a class="btn" href="#oeuvres">{c['c2']}</a></div></div></section>
 <section class="light"><div class="wrap"><h2>{c['ih']}</h2><p>{c['ip']}</p></div></section>
 <section id="oeuvres"><h2>{c['wh']}</h2><p class="small">{c['wz']}</p><div class="grid">{figs}</div><ul class="cats">{''.join(f'<li>{x}</li>' for x in c['cats'])}</ul></section>
@@ -289,8 +340,22 @@ for lg,c in T.items():
 <section id="authenticite" class="alt"><div class="wrap"><h2>{c['auh']}</h2>{''.join(f'<p>{x}</p>' for x in c['aup'])}</div></section>
 {art}
 <section id="atelier" class="light"><div class="wrap"><h2>{c['gh']}</h2><p>{c['gp']}</p></div><div class="geste">{gs}</div><div class="wrap" style="margin-top:3rem"><h2>{c['ah']}</h2><p>{c['ap']}</p></div></section>
+<section id="pro" class="alt"><div class="wrap">
+<h2>{c['proh']}</h2>
+<p>{c['prop']}</p>
+<ul class="cats">{"".join(f"<li>{x}</li>" for x in c['prosvc'])}</ul>
+</div>
+<div class="geste">{pro_img}</div>
+<div class="wrap">
+<h3 style="font-family:Georgia,serif;font-weight:400;font-size:1.4rem;margin:2.5rem 0 .5rem">{c['prosh']}</h3>
+<ol>{"".join(f"<li>{x}</li>" for x in c['prosteps'])}</ol>
+<p class="dim" style="margin-top:1.5rem">{c['prot']}</p>
+<a class="more" href="#authenticite">{c['prolink']}</a>
+<div style="margin-top:2rem"><a class="btn p" href="#projet">{c['proc']}</a></div>
+</div>
+</section>
 <section id="projet"><div class="wrap"><h2>{c['ph']}</h2><p class="dim">{c['pp']}</p>
-<form id="pf" data-att="{c['att']}" data-wa="{c['wa']}" data-done="{c['done']}"><fieldset class="kind"><legend>{c['kl']}</legend><label class="opt"><input type="radio" name="k" value="{c['k1']}" checked><span>{c['k1']}</span></label><label class="opt"><input type="radio" name="k" value="{c['k2']}"><span>{c['k2']}</span></label></fieldset><label>{c['fl'][1]}<select name="t">{''.join(f'<option>{o}</option>' for o in c['opts'])}</select></label><label>{c['fl'][2]}<input name="s"></label><label>{c['fl'][3]}<textarea name="m"></textarea></label><label>{c['fl'][0]}<input name="n" autocomplete="name"></label><label>{c['ct']}<input name="c" autocomplete="tel" required></label><label>{c['up']}<input type="file" id="ff" accept="image/*,video/*" multiple></label><button class="btn p" type="submit">{c['send']}</button><p class="small" id="st" role="status">{c['note']}</p></form>
+<form id="pf" data-att="{c['att']}" data-wa="{c['wa']}" data-done="{c['done']}"><fieldset class="kind"><legend>{c['kl']}</legend><label class="opt"><input type="radio" name="k" value="{c['k1']}" checked><span>{c['k1']}</span></label><label class="opt"><input type="radio" name="k" value="{c['k2']}"><span>{c['k2']}</span></label></fieldset><label>{c['prf']}<select name="pr">{''.join(f'<option>{o}</option>' for o in c['prfopts'])}</select></label><label>{c['fl'][1]}<select name="t">{''.join(f'<option>{o}</option>' for o in c['opts'])}</select></label><label>{c['fl'][2]}<input name="s"></label><label>{c['fl'][3]}<textarea name="m"></textarea></label><label>{c['fl'][0]}<input name="n" autocomplete="name"></label><label>{c['ct']}<input name="c" autocomplete="tel" required></label><label>{c['up']}<input type="file" id="ff" accept="image/*,video/*" multiple></label><button class="btn p" type="submit">{c['send']}</button><p class="small" id="st" role="status">{c['note']}</p></form>
 <p style="margin-top:1.5rem"><a href="https://wa.me/{WA}">WhatsApp</a> · <a href="tel:+393513866250">{TEL}</a></p><p class="small">Camporosso Mare, Imperia, Italia</p></div></section></main>
 <footer><h3>{c['lh']}</h3>{''.join(f'<p>{x}</p>' for x in c['lp'])}<p>© LITHOS IMPERIAL</p></footer>
 <a class="fab" href="#projet">{c['c1']}</a>
