@@ -90,9 +90,10 @@ d.text((82,302),"L'ART DE LA MOSAÏQUE ANTIQUE SUR MESURE",font=_font(20),fill='
 d.text((82,356),'Camporosso Mare · Imperia · Italia',font=_font(17),fill='#a9a39a')
 og.save(O+'img/og.jpg',quality=88)
 m=L.crop((330,150,950,770));[m.resize((s,s),Image.LANCZOS).save(O+n) for s,n in((32,'favicon-32.png'),(180,'apple-touch-icon.png'),(512,'icon-512.png'))]
-def pic(k,alt,eager=False,sz='(min-width:900px) 33vw,100vw'):
-    W,H,ws=D[k];a=f'../img/{k}-{ws[-1]}.webp'
-    return f'<img src="{a}" srcset="'+','.join(f'../img/{k}-{w}.webp {w}w' for w in ws)+f'" sizes="{sz}" width="{ws[-1]}" height="{round(H*ws[-1]/W)}" alt="{alt}" data-full="{a}"'+(' fetchpriority="high"' if eager else ' loading="lazy" decoding="async"')+'>'
+def pic(k,alt,eager=False,sz='(min-width:900px) 33vw,100vw',depth=1):
+    pre='../'*depth
+    W,H,ws=D[k];a=f'{pre}img/{k}-{ws[-1]}.webp'
+    return f'<img src="{a}" srcset="'+','.join(f'{pre}img/{k}-{w}.webp {w}w' for w in ws)+f'" sizes="{sz}" width="{ws[-1]}" height="{round(H*ws[-1]/W)}" alt="{alt}" data-full="{a}"'+(' fetchpriority="high"' if eager else ' loading="lazy" decoding="async"')+'>'
 SITE='https://mosaic-art.github.io/';TEL='+39 351 386 6250';WA='393513866250'
 T={
 'fr':dict(t="LITHOS IMPERIAL — Mosaïste d'art en pierre naturelle",d="Atelier d'art mosaïste à Camporosso Mare (Ligurie) : tableaux, fresques, sols et piscines en mosaïque, créés à la main en pierre naturelle.",
@@ -170,6 +171,7 @@ header{background:#0f0d0bf2}.brand{white-space:nowrap;font-size:1rem;letter-spac
 .fab{opacity:0;pointer-events:none;transition:opacity .25s}.fab.on{opacity:1;pointer-events:auto}
 .scrollnav{position:fixed;left:.9rem;bottom:calc(1.1rem + env(safe-area-inset-bottom,0px));z-index:6;opacity:0;pointer-events:none;transition:opacity .25s;display:flex;flex-direction:column;gap:.5rem}
 .scrollnav.on{opacity:1;pointer-events:auto}
+.scrollnav.on.snoff{opacity:0;pointer-events:none}
 .scrollnav button{width:2.6rem;height:2.6rem;padding:0;border:1px solid var(--o);background:var(--k);cursor:pointer;display:grid;place-items:center}
 .scrollnav svg{width:1.3rem;height:1.3rem;display:block}
 .scrollnav button:hover{background:#1b1814}
@@ -218,15 +220,15 @@ var fab=d.querySelector('.fab'),scn=d.querySelector('.scrollnav'),vis={};if(wind
 u.onclick=function(){scrollTo({top:0,behavior:'smooth'})};
 w.onclick=function(){scrollTo({top:scrollY+innerHeight*.92,behavior:'smooth'})}})();
 var popoStop=function(){};
-;(function(){var p=d.getElementById('popo');if(!p)return;var fast=/[?&]qa=1/.test(location.search),D1=fast?1500:10000,HIDE=fast?2500:10000,REP=fast?6000:40000,hideT,repT,stopped=false;
+;(function(){var p=d.getElementById('popo');if(!p)return;var scn=d.querySelector('.scrollnav');var fast=/[?&]qa=1/.test(location.search),D1=fast?1500:10000,HIDE=fast?2500:10000,REP=fast?6000:40000,hideT,repT,stopped=false;
 var seen=false;try{seen=localStorage.getItem('li_seen')==='1';localStorage.setItem('li_seen','1')}catch(e){}
 var MAX=seen?1:3;
 function already(){try{return localStorage.getItem('li_sent')==='1'}catch(e){return false}}
 function count(){try{return +sessionStorage.getItem('li_pc')||0}catch(e){return 0}}
 function bump(){try{sessionStorage.setItem('li_pc',count()+1)}catch(e){}}
-popoStop=function(){stopped=true;clearTimeout(hideT);clearTimeout(repT);p.classList.remove('show')};
-function hide(){clearTimeout(hideT);p.classList.remove('show');if(!stopped&&count()<MAX)repT=setTimeout(cycle,REP)}
-function cycle(){if(stopped||already()||count()>=MAX)return;p.classList.add('show');bump();hideT=setTimeout(hide,HIDE)}
+popoStop=function(){stopped=true;clearTimeout(hideT);clearTimeout(repT);p.classList.remove('show');scn&&scn.classList.remove('snoff')};
+function hide(){clearTimeout(hideT);p.classList.remove('show');scn&&scn.classList.remove('snoff');if(!stopped&&count()<MAX)repT=setTimeout(cycle,REP)}
+function cycle(){if(stopped||already()||count()>=MAX)return;p.classList.add('show');scn&&scn.classList.add('snoff');bump();hideT=setTimeout(hide,HIDE)}
 d.getElementById('poc').onclick=function(){hide()};
 f.addEventListener('keydown',function(){popoStop()},{once:true});
 d.getElementById('pog').onclick=function(){hide()};
@@ -312,6 +314,31 @@ PRO={
  prf="Il tuo profilo",
  prfopts=["Privato","Architetto","Decoratore / Designer","Hotel / struttura","Galleria","Collezionista","Altro professionista"])}
 for lg,v in PRO.items():X[lg].update(v)
+
+SLUG={'fr':'architectes-decorateurs','en':'architects-interior-designers','it':'architetti-designer'}
+PRO2={
+'fr':dict(pt="Mosaïque sur mesure pour architectes & décorateurs",
+ pd="Atelier d'art mosaïste à Camporosso Mare : créations sur mesure, échantillons, sols et piscines pour architectes, décorateurs et hôtels.",
+ plead="L'atelier réalise panneaux muraux, sols, médaillons et pièces pour piscines à partir de vos plans, pour vos projets résidentiels, hôteliers ou commerciaux.",
+ proteaser="L'atelier collabore avec architectes, décorateurs et designers lorsque leur projet demande une pièce en mosaïque sur mesure.",
+ prolearn="Découvrir la collaboration avec l'atelier",
+ proback="← Retour au site",
+ prfdefault=1),
+'en':dict(pt="Bespoke Mosaics for Architects & Interior Designers",
+ pd="Mosaic art atelier in Camporosso Mare, Italy: bespoke panels, samples, floors and pools for architects, interior designers and hotels.",
+ plead="The atelier creates wall panels, floors, medallions and pool mosaics from your plans, for residential, hospitality or commercial projects.",
+ proteaser="The atelier works alongside architects, decorators and designers whenever a project calls for a bespoke mosaic piece.",
+ prolearn="Discover how we work with professionals",
+ proback="← Back to the site",
+ prfdefault=1),
+'it':dict(pt="Mosaico su misura per architetti e designer",
+ pd="Atelier di mosaico d'arte a Camporosso Mare: realizzazioni su misura, campioni, pavimenti e piscine per architetti, designer e hotel.",
+ plead="L'atelier realizza pannelli murali, pavimenti, medaglioni e piscine a partire dai vostri piani, per progetti residenziali, alberghieri o commerciali.",
+ proteaser="L'atelier collabora con architetti, decoratori e designer quando un progetto richiede un'opera in mosaico su misura.",
+ prolearn="Scopri la collaborazione con l'atelier",
+ proback="← Torna al sito",
+ prfdefault=1)}
+for lg,v in PRO2.items():X[lg].update(v)
 ORD=['arbre','khamsa','sol','pilier','bordure']
 import json
 for lg,c in T.items():
@@ -331,7 +358,7 @@ for lg,c in T.items():
     langs=''.join(f'<a href="../{x}/" hreflang="{x}" lang="{x}"'+(' aria-current="page"' if x==lg else '')+f'>{x.upper()}</a>' for x in T)
     n=c['nav']
     page=f'''<!doctype html><html lang="{lg}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{c['t']}</title><meta name="google-site-verification" content="LjJxjfjruOxmM15EPXt4FPjFMhXsCNZYhdZUjgpRTGk" /><meta name="description" content="{c['d']}"><link rel="canonical" href="{SITE}{lg}/">{hl}<meta name="theme-color" content="#0f0d0b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="LITHOS IMPERIAL"><link rel="icon" href="../favicon-32.png" sizes="32x32"><link rel="apple-touch-icon" href="../apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:title" content="{c['t']}"><meta property="og:description" content="{c['d']}"><meta property="og:image" content="{SITE}img/og.jpg"><meta property="og:url" content="{SITE}{lg}/"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{SITE}img/og.jpg"><script type="application/ld+json">{ld}</script><style>{CSS}</style></head><body>
-<header id="hdr"><a class="brand" href="#top"><img src="../favicon-32.png" width="34" height="34" alt="">LITHOS IMPERIAL</a><nav id="mnav"><a href="#oeuvres">{n[0]}</a><a href="#sur-mesure">{n[1]}</a><a href="#reproductions">{n[2]}</a><a href="#artiste">{c['an']}</a><a href="#atelier">{n[3]}</a><a href="#pro">{c['pron']}</a><a href="#projet">{n[4]}</a></nav><div class="lang">{langs}</div><button id="mt" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="mnav" aria-label="Menu">☰</button></header>
+<header id="hdr"><a class="brand" href="#top"><img src="../favicon-32.png" width="34" height="34" alt="">LITHOS IMPERIAL</a><nav id="mnav"><a href="#oeuvres">{n[0]}</a><a href="#sur-mesure">{n[1]}</a><a href="#reproductions">{n[2]}</a><a href="#artiste">{c['an']}</a><a href="#atelier">{n[3]}</a><a href="{SLUG[lg]}/">{c['pron']}</a><a href="#projet">{n[4]}</a></nav><div class="lang">{langs}</div><button id="mt" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="mnav" aria-label="Menu">☰</button></header>
 <main id="top"><section class="hero" id="h"><div class="ph">{car}</div><div class="tx"><h1>LITHOS IMPERIAL</h1><p class="sig">{c['sig']}</p><p class="tag">{c['tag']}</p><div class="btns"><a class="btn p" href="#projet">{c['c1']}</a><a class="btn" href="#oeuvres">{c['c2']}</a></div></div></section>
 <section class="light"><div class="wrap"><h2>{c['ih']}</h2><p>{c['ip']}</p></div></section>
 <section id="oeuvres"><h2>{c['wh']}</h2><p class="small">{c['wz']}</p><div class="grid">{figs}</div><ul class="cats">{''.join(f'<li>{x}</li>' for x in c['cats'])}</ul></section>
@@ -342,18 +369,9 @@ for lg,c in T.items():
 <section id="atelier" class="light"><div class="wrap"><h2>{c['gh']}</h2><p>{c['gp']}</p></div><div class="geste">{gs}</div><div class="wrap" style="margin-top:3rem"><h2>{c['ah']}</h2><p>{c['ap']}</p></div></section>
 <section id="pro" class="alt"><div class="wrap">
 <h2>{c['proh']}</h2>
-<p>{c['prop']}</p>
-<ul class="cats">{"".join(f"<li>{x}</li>" for x in c['prosvc'])}</ul>
-</div>
-<div class="geste">{pro_img}</div>
-<div class="wrap">
-<h3 style="font-family:Georgia,serif;font-weight:400;font-size:1.4rem;margin:2.5rem 0 .5rem">{c['prosh']}</h3>
-<ol>{"".join(f"<li>{x}</li>" for x in c['prosteps'])}</ol>
-<p class="dim" style="margin-top:1.5rem">{c['prot']}</p>
-<a class="more" href="#authenticite">{c['prolink']}</a>
-<div style="margin-top:2rem"><a class="btn p" href="#projet">{c['proc']}</a></div>
-</div>
-</section>
+<p>{c['proteaser']}</p>
+<a class="btn" href="{SLUG[lg]}/">{c['prolearn']}</a>
+</div></section>
 <section id="projet"><div class="wrap"><h2>{c['ph']}</h2><p class="dim">{c['pp']}</p>
 <form id="pf" data-att="{c['att']}" data-wa="{c['wa']}" data-done="{c['done']}"><fieldset class="kind"><legend>{c['kl']}</legend><label class="opt"><input type="radio" name="k" value="{c['k1']}" checked><span>{c['k1']}</span></label><label class="opt"><input type="radio" name="k" value="{c['k2']}"><span>{c['k2']}</span></label></fieldset><label>{c['prf']}<select name="pr">{''.join(f'<option>{o}</option>' for o in c['prfopts'])}</select></label><label>{c['fl'][1]}<select name="t">{''.join(f'<option>{o}</option>' for o in c['opts'])}</select></label><label>{c['fl'][2]}<input name="s"></label><label>{c['fl'][3]}<textarea name="m"></textarea></label><label>{c['fl'][0]}<input name="n" autocomplete="name"></label><label>{c['ct']}<input name="c" autocomplete="tel" required></label><label>{c['up']}<input type="file" id="ff" accept="image/*,video/*" multiple></label><button class="btn p" type="submit">{c['send']}</button><p class="small" id="st" role="status">{c['note']}</p></form>
 <p style="margin-top:1.5rem"><a href="https://wa.me/{WA}">WhatsApp</a> · <a href="tel:+393513866250">{TEL}</a></p><p class="small">Camporosso Mare, Imperia, Italia</p></div></section></main>
@@ -363,9 +381,47 @@ for lg,c in T.items():
 <aside class="popo" id="popo" role="complementary" aria-live="polite"><button class="x" id="poc" type="button" aria-label="{c['pc']}">✕</button><h3>{c['ph']}</h3><p>{c['pb']}</p><a class="btn p" id="pog" href="#projet">{c['c1']}</a></aside>
 <dialog id="lb"><button aria-label="Close">✕</button><div class="lb"><img alt=""></div></dialog><script>{JS}</script></body></html>'''
     open(O+lg+'/index.html','w').write(page)
+    # --- page dédiée Professionnels/Architectes, avec sa propre adresse ---
+    os.makedirs(O+lg+'/'+SLUG[lg],exist_ok=True)
+    pro_hl=''.join(f'<link rel="alternate" hreflang="{x}" href="{SITE}{x}/{SLUG[x]}/">' for x in T)+f'<link rel="alternate" hreflang="x-default" href="{SITE}en/{SLUG["en"]}/">'
+    pro_ld='{"@context":"https://schema.org","@type":"Service","serviceType":"Bespoke mosaic art","provider":{"@type":"LocalBusiness","name":"LITHOS IMPERIAL","telephone":"%s","address":{"@type":"PostalAddress","addressLocality":"Camporosso Mare","addressRegion":"Imperia","addressCountry":"IT"}},"areaServed":"IT","description":%s,"url":"%s%s/%s/"}'%(TEL,json.dumps(c['pd'],ensure_ascii=False),SITE,lg,SLUG[lg])
+    pro_langs=''.join(f'<a href="../../{x}/{SLUG[x]}/" hreflang="{x}" lang="{x}"'+(' aria-current="page"' if x==lg else '')+f'>{x.upper()}</a>' for x in T)
+    pro_prfopts=''.join(f'<option{" selected" if idx==c["prfdefault"] else ""}>{o}</option>' for idx,o in enumerate(c['prfopts']))
+    pro_page=(
+    '<!doctype html><html lang="'+lg+'"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>'+c['pt']+'</title>'
+    '<meta name="google-site-verification" content="LjJxjfjruOxmM15EPXt4FPjFMhXsCNZYhdZUjgpRTGk" /><meta name="description" content="'+c['pd']+'">'
+    '<link rel="canonical" href="'+SITE+lg+'/'+SLUG[lg]+'/">'+pro_hl+
+    '<meta name="theme-color" content="#0f0d0b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="LITHOS IMPERIAL">'
+    '<link rel="icon" href="../../favicon-32.png" sizes="32x32"><link rel="apple-touch-icon" href="../../apple-touch-icon.png">'
+    '<meta property="og:type" content="website"><meta property="og:title" content="'+c['pt']+'"><meta property="og:description" content="'+c['pd']+'"><meta property="og:image" content="'+SITE+'img/og.jpg"><meta property="og:url" content="'+SITE+lg+'/'+SLUG[lg]+'/"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">'
+    '<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="'+SITE+'img/og.jpg">'
+    '<script type="application/ld+json">'+pro_ld+'</script><style>'+CSS+'</style></head><body>'
+    '<header id="hdr"><a class="brand" href="../"><img src="../../favicon-32.png" width="34" height="34" alt="">LITHOS IMPERIAL</a>'
+    '<nav id="mnav"><a href="../#oeuvres">'+n[0]+'</a><a href="../#sur-mesure">'+n[1]+'</a><a href="../#reproductions">'+n[2]+'</a><a href="../#artiste">'+c['an']+'</a><a href="../#atelier">'+n[3]+'</a><a href="./" aria-current="page">'+c['pron']+'</a><a href="#projet">'+n[4]+'</a></nav>'
+    '<div class="lang">'+pro_langs+'</div><button id="mt" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="mnav" aria-label="Menu">☰</button></header>'
+    '<main id="top"><section class="hero" id="h" style="min-height:0"><div class="tx" style="padding-top:7rem"><h1 style="font-size:clamp(1.9rem,4.6vw,3.4rem)">'+c['proh']+'</h1><p class="sig">'+c['pron']+'</p><p class="tag" style="max-width:42rem">'+c['plead']+'</p>'
+    '<div class="btns"><a class="btn p" href="#projet">'+c['proc']+'</a><a class="btn" href="../">'+c['proback']+'</a></div></div></section>'
+    '<section><div class="wrap"><p>'+c['prop']+'</p><ul class="cats">'+''.join('<li>'+x+'</li>' for x in c['prosvc'])+'</ul></div></section>'
+    '<section><div class="geste">'+pro_img+'</div></section>'
+    '<section class="light"><div class="wrap"><h2>'+c['prosh']+'</h2><ol>'+''.join('<li>'+x+'</li>' for x in c['prosteps'])+'</ol><p class="dim" style="margin-top:1.5rem">'+c['prot']+'</p><a class="more" href="../#authenticite">'+c['prolink']+'</a></div></section>'
+    '<section id="projet"><div class="wrap"><h2>'+c['ph']+'</h2><p class="dim">'+c['pp']+'</p>'
+    '<form id="pf" data-att="'+c['att']+'" data-wa="'+c['wa']+'" data-done="'+c['done']+'"><fieldset class="kind"><legend>'+c['kl']+'</legend><label class="opt"><input type="radio" name="k" value="'+c['k1']+'" checked><span>'+c['k1']+'</span></label><label class="opt"><input type="radio" name="k" value="'+c['k2']+'"><span>'+c['k2']+'</span></label></fieldset>'
+    '<label>'+c['prf']+'<select name="pr">'+pro_prfopts+'</select></label><label>'+c['fl'][1]+'<select name="t">'+''.join('<option>'+o+'</option>' for o in c['opts'])+'</select></label><label>'+c['fl'][2]+'<input name="s"></label><label>'+c['fl'][3]+'<textarea name="m"></textarea></label><label>'+c['fl'][0]+'<input name="n" autocomplete="name"></label><label>'+c['ct']+'<input name="c" autocomplete="tel" required></label><label>'+c['up']+'<input type="file" id="ff" accept="image/*,video/*" multiple></label>'
+    '<button class="btn p" type="submit">'+c['send']+'</button><p class="small" id="st" role="status">'+c['note']+'</p></form>'
+    '<p style="margin-top:1.5rem"><a href="https://wa.me/'+WA+'">WhatsApp</a> · <a href="tel:+393513866250">'+TEL+'</a></p><p class="small">Camporosso Mare, Imperia, Italia</p></div></section></main>'
+    '<footer><h3>'+c['lh']+'</h3>'+''.join('<p>'+x+'</p>' for x in c['lp'])+'<p>© LITHOS IMPERIAL</p></footer>'
+    '<a class="fab" href="#projet">'+c['c1']+'</a>'
+    '<nav class="scrollnav" aria-label="Navigation rapide"><button id="snu" type="button" aria-label="'+c['su']+'"><svg viewBox="0 0 24 24" fill="none"><g><rect x="10.3" y="3.2" width="3.4" height="3.4" fill="#f2ede2"/><rect x="6.9" y="6.6" width="3.4" height="3.4" fill="#d8ceb8"/><rect x="13.7" y="6.6" width="3.4" height="3.4" fill="#d8ceb8"/><rect x="3.5" y="10" width="3.4" height="3.4" fill="#a88f58"/><rect x="17.1" y="10" width="3.4" height="3.4" fill="#a88f58"/><rect x="0.1" y="13.4" width="3.4" height="3.4" fill="#4b4034"/><rect x="20.5" y="13.4" width="3.4" height="3.4" fill="#4b4034"/></g></svg></button>'
+    '<button id="snd" type="button" aria-label="'+c['sd']+'"><svg viewBox="0 0 24 24" fill="none"><g><rect x="0.1" y="7.2" width="3.4" height="3.4" fill="#4b4034"/><rect x="20.5" y="7.2" width="3.4" height="3.4" fill="#4b4034"/><rect x="3.5" y="10.6" width="3.4" height="3.4" fill="#a88f58"/><rect x="17.1" y="10.6" width="3.4" height="3.4" fill="#a88f58"/><rect x="6.9" y="14" width="3.4" height="3.4" fill="#d8ceb8"/><rect x="13.7" y="14" width="3.4" height="3.4" fill="#d8ceb8"/><rect x="10.3" y="17.4" width="3.4" height="3.4" fill="#f2ede2"/></g></svg></button></nav>'
+    '<dialog id="lb"><button aria-label="Close">✕</button><div class="lb"><img alt=""></div></dialog><script>'+JS+'</script></body></html>'
+    )
+    open(O+lg+'/'+SLUG[lg]+'/index.html','w').write(pro_page)
+
 open(O+'index.html','w').write(f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{T["en"]["t"]}</title><meta name="google-site-verification" content="LjJxjfjruOxmM15EPXt4FPjFMhXsCNZYhdZUjgpRTGk" /><meta name="description" content="{T["en"]["d"]}"><link rel="canonical" href="{SITE}">{hl}<meta name="theme-color" content="#0f0d0b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="LITHOS IMPERIAL"><link rel="icon" href="favicon-32.png" sizes="32x32"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta property="og:type" content="website"><meta property="og:title" content="{T["en"]["t"]}"><meta property="og:description" content="{T["en"]["d"]}"><meta property="og:image" content="{SITE}img/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:url" content="{SITE}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{SITE}img/og.jpg"><script>try{{var ls=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||"en"],l="en",i;for(i=0;i<ls.length;i++){{var cc=String(ls[i]).slice(0,2).toLowerCase();if(/^(fr|en|it)$/.test(cc)){{l=cc;break}}}}location.replace(l+"/"+location.hash)}}catch(e){{location.replace("en/")}}</script></head><body style="background:#0f0d0b;color:#f2ede2;font-family:sans-serif;text-align:center;padding:4rem"><img src="favicon-32.png" width="32" height="32" alt=""><h1>LITHOS IMPERIAL</h1><p><a href="fr/">Français</a> · <a href="en/">English</a> · <a href="it/">Italiano</a></p></body></html>''')
 open(O+'robots.txt','w').write(f'User-agent: *\nAllow: /\nSitemap: {SITE}sitemap.xml\n')
-open(O+'sitemap.xml','w').write('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'+''.join(f'<url><loc>{SITE}{x}/</loc>'+''.join(f'<xhtml:link rel="alternate" hreflang="{y}" href="{SITE}{y}/"/>' for y in T)+'</url>' for x in T)+'</urlset>')
+urls_home = ''.join(f'<url><loc>{SITE}{x}/</loc>'+''.join(f'<xhtml:link rel="alternate" hreflang="{y}" href="{SITE}{y}/"/>' for y in T)+'</url>' for x in T)
+urls_pro = ''.join(f'<url><loc>{SITE}{x}/{SLUG[x]}/</loc>'+''.join(f'<xhtml:link rel="alternate" hreflang="{y}" href="{SITE}{y}/{SLUG[y]}/"/>' for y in T)+'</url>' for x in T)
+open(O+'sitemap.xml','w').write('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'+urls_home+urls_pro+'</urlset>')
 open(O+'.nojekyll','w').write('')
 open(O+'README.md','w').write('# LITHOS IMPERIAL\nSite statique (FR/EN/IT). Déploiement: dépôt GitHub > Settings > Pages > Branch main / root. Remplacer `https://lithosimperial.com/` (build.py: SITE) par l\'URL réelle, puis `python3 build.py`. Compléter la P.IVA dans les mentions légales.\n')
 
